@@ -6,7 +6,6 @@ using MongoDbSample.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
-using System.Linq;
 
 namespace MongoDbSample.Controllers
 {
@@ -40,9 +39,11 @@ namespace MongoDbSample.Controllers
             return View();
         }
 
-        public ActionResult Contact()
+        // Added by apurva
+        public ActionResult Grid()
         {
-            IEnumerable<Student> result = StudentGrid();
+            var collection = Db.GetCollection<Student>("student");
+            MongoCursor<Student> result = collection.FindAllAs<Student>();
             return View(result);
         }
 
@@ -105,8 +106,8 @@ namespace MongoDbSample.Controllers
                 {
                     address = form.GetValue("Address").AttemptedValue;
                 }
-                
-                Employee emp1 = new Employee {id=Guid.NewGuid().ToString(), FirstName = firstName, LastName = lastName, ContactNo = contactNo,Address = address };
+
+                Employee emp1 = new Employee { id = Guid.NewGuid().ToString(), FirstName = firstName, LastName = lastName, ContactNo = contactNo, Address = address };
                 collectionmployee.Insert(emp1);
                 result = "Success";
             }
@@ -115,7 +116,7 @@ namespace MongoDbSample.Controllers
 
                 throw new Exception();
             }
-            return Json(result,JsonRequestBehavior.AllowGet);
+            return Json(result, JsonRequestBehavior.AllowGet);
         }
 
 
@@ -136,7 +137,7 @@ namespace MongoDbSample.Controllers
             return Json(objEmployees, JsonRequestBehavior.AllowGet);
         }
 
-        private IEnumerable<Student> StudentGrid()
+        public ActionResult StudentGrid()
         {
             try
             {
@@ -145,22 +146,46 @@ namespace MongoDbSample.Controllers
                 //insert
                 Student student1 = new Student
                 {
-                    Name = "Mehul Jain",
-                    Grade = "10",
-                    Address = "Udaipur",
-                    City = "Udaipur",
-                    Phone = "999999999"
+                    Id = Guid.NewGuid().ToString(),
+                    Name = "Rashmi Mehta",
+                    Grade = "11",
+                    Address = "Madri Road",
+                    City = "Kolapur",
+                    Phone = "9945399999"
                 };
                 studentobj.Insert(student1);
 
                 Student student2 = new Student
                 {
-                    Name = "Charvi Purohit",
-                    Address = "Sector-13",
+                    Id = Guid.NewGuid().ToString(),
+                    Name = "Shruti Purohit",
+                    Address = "Sector-11",
                     City = "Udaipur",
-                    Phone = "9887594812"
+                    Phone = "9945787433"
                 };
                 studentobj.Insert(student2);
+
+                Student student3 = new Student
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = "Misha Collins",
+                    Grade = "8",
+                    Address = "11th block",
+                    City = "Noida",
+                    Phone = "9887584686"
+                };
+                studentobj.Insert(student3);
+
+                Student student4 = new Student
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = "Dean Williams",
+                    Grade = "7",
+                    Address = "10th Street",
+                    City = "Bhagalpur"
+                };
+                studentobj.Insert(student4);
+
                 var id = student2.Id;
 
                 //find
@@ -168,7 +193,7 @@ namespace MongoDbSample.Controllers
                 Student stu = studentobj.FindOne(query);
 
                 //save
-                stu.Address = "Sector-13, Udaipur, Rajasthan";
+                stu.Address = "Madri Road, Udaipur, Rajasthan";
                 studentobj.Save(stu);
 
                 id = student1.Id;
@@ -176,15 +201,14 @@ namespace MongoDbSample.Controllers
                 query = Query<Student>.EQ(e => e.Id, id);
 
                 //update
-                var update = Update<Student>.Set(e => e.Address, "Bedla");
+                var update = Update<Student>.Set(e => e.Address, "Sector-13");
                 studentobj.Update(query, update);
 
                 //remove
                 //studentobj.Remove(query);
 
-                var collection = Db.GetCollection<Student>("student");
-                MongoCursor<Student> result = collection.FindAllAs<Student>();
-                return result.ToList();
+                // drop collection
+                //studentobj.Drop();
             }
             catch (Exception)
             {
@@ -192,6 +216,7 @@ namespace MongoDbSample.Controllers
                 }
                 throw;
             }
+            return RedirectToAction("Grid", "Home");
         }
 
         public void InsertBatch()
@@ -273,7 +298,7 @@ namespace MongoDbSample.Controllers
         public void FindQuery()
         {
             var collectionCustomer = Db.GetCollection("customer");
-            
+
             //Greater than
             var query = Query.GT("quantity", 30);
             MongoCursor<BsonDocument> cursorGt = collectionCustomer.Find(query);
@@ -299,12 +324,20 @@ namespace MongoDbSample.Controllers
             }
 
             //And with Or operator
-            query = Query.And(Query.EQ("quantity", 25), Query.Or(Query.EQ("size", "S"),Query.EQ("size","N")));
+            query = Query.And(Query.EQ("quantity", 25), Query.Or(Query.EQ("size", "S"), Query.EQ("size", "N")));
             MongoCursor<BsonDocument> cursorAndOr = collectionCustomer.Find(query);
             foreach (var cur in cursorAndOr)
             {
                 Console.WriteLine(cur);
             }
+        }
+
+        public ActionResult DeleteStudent(string id)
+        {
+            var studentobj = Db.GetCollection<Student>("student");
+            var query = Query<Student>.EQ(e => e.Id, id);
+            studentobj.Remove(query);
+            return RedirectToAction("Grid","Home");
         }
     }
 }

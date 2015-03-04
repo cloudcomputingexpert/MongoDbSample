@@ -1,6 +1,7 @@
 ﻿@{
     ViewBag.Title = "Home Page";
     Layout = null;
+    string sBaseurl = System.Configuration.ConfigurationManager.AppSettings["BaseUrl"];
 }
 @model IEnumerable<MongoDbSample.Models.Student>
 
@@ -11,9 +12,10 @@
 </div>
 <div>
     <div id="screen_section">
-        <table border="1" style="width: 100%;border-spacing: inherit">
+        <table border="1" style="width: 100%; border-spacing: inherit; text-align: center;">
             <tr>
                 <td>ID</td>
+                <td></td>
                 <td>Name</td>
                 <td>Grade</td>
                 <td>Address</td>
@@ -24,6 +26,7 @@
             {
                 <tr>
                     <td>@r.Id</td>
+                    <td><a href="@sBaseurl/Home/DeleteStudent?id=@r.Id">Delete</a></td>
                     <td>@r.Name</td>
                     <td>@r.Grade</td>
                     <td>@r.Address</td>
@@ -34,6 +37,9 @@
             }
         </table>
     </div>
+    <br/>
+    <br/>
+    <a href="@sBaseurl/Home/StudentGrid">Add more students</a>
 </div>
 
 
