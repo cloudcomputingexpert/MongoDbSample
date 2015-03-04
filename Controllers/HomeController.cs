@@ -1,8 +1,11 @@
-﻿using System.Web.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using System.Web.Configuration;
 using System.Web.Mvc;
 using MongoDbSample.Models;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
+using System.Linq;
 
 namespace MongoDbSample.Controllers
 {
@@ -23,8 +26,7 @@ namespace MongoDbSample.Controllers
 
         public ActionResult Index()
         {
-            ViewBag.Message = "Modify this template to jump-start your ASP.NET MVC application.";
-            MongoDbOpeartions();
+            //MongoDbOpeartions();
             return View();
         }
 
@@ -36,14 +38,12 @@ namespace MongoDbSample.Controllers
 
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
-            return View();
+            IEnumerable<Student> result = StudentGrid();
+            return View(result);
         }
 
         public  void MongoDbOpeartions()
         {
-
-
             var collectionCustomer = db.GetCollection<Customer>("customer");
 
             //BsonDocument[] seedData = CreateSeedData();
@@ -74,9 +74,48 @@ namespace MongoDbSample.Controllers
             collectionCustomer.Remove(query);
         }
 
-        public ActionResult Adddata(string datatoinsert)
+        private IEnumerable<Student> StudentGrid()
         {
-            return Json();
+            try
+            {
+                var studentobj = db.GetCollection<Student>("student");
+
+                //insert
+                Student student1 = new Student { Name = "Mehul Jain", Grade = "10", Address = "Udaipur", City = "Udaipur", Phone = "999999999" };
+                studentobj.Insert(student1);
+
+                Student student2 = new Student { Name = "Charvi Purohit", Address = "Sector-13", City = "Udaipur", Phone = "9887594812" };
+                studentobj.Insert(student2);
+                var id = student2.Id;
+
+                //find
+                var query = Query<Student>.EQ(e => e.Id, id);
+                Student stu = studentobj.FindOne(query);
+
+                //save
+                stu.Address = "Sector-13, Udaipur, Rajasthan";
+                studentobj.Save(stu);
+
+                id = student1.Id;
+                //find
+                query = Query<Student>.EQ(e => e.Id, id);
+
+                //update
+                var update = Update<Student>.Set(e => e.Address, "Bedla");
+                studentobj.Update(query, update);
+
+                //remove
+                //studentobj.Remove(query);
+
+                var collection = db.GetCollection<Student>("student");
+                MongoCursor<Student> result = collection.FindAllAs<Student>();
+                return result.ToList();
+            }
+            catch (Exception)
+            {
+                { }
+                throw;
+            }
         }
     }
 }
