@@ -8,6 +8,19 @@ namespace MongoDbSample.Controllers
 {
     public class HomeController : Controller
     {
+        public MongoDatabase db;
+
+        string uri = WebConfigurationManager.ConnectionStrings["MongoDbUri"].ConnectionString;
+
+        public HomeController()
+        {
+            //const string uri = "mongodb://admin:admin@ds031277.mongolab.com:31277/sampledb";
+            MongoUrl url = new MongoUrl(uri);
+            MongoClient client = new MongoClient(url);
+            MongoServer server = client.GetServer();
+            db  = server.GetDatabase("sampledb");
+        }
+
         public ActionResult Index()
         {
             ViewBag.Message = "Modify this template to jump-start your ASP.NET MVC application.";
@@ -17,7 +30,7 @@ namespace MongoDbSample.Controllers
 
         public ActionResult About()
         {
-            ViewBag.Message = "Your app description page.";
+            ViewBag.Message = "My tasks perform here..";
             return View();
         }
 
@@ -27,14 +40,9 @@ namespace MongoDbSample.Controllers
             return View();
         }
 
-        static void MongoDbOpeartions()
+        public  void MongoDbOpeartions()
         {
-            string uri = WebConfigurationManager.ConnectionStrings["MongoDbUri"].ConnectionString;
-            //const string uri = "mongodb://admin:admin@ds031277.mongolab.com:31277/sampledb";
-            MongoUrl url = new MongoUrl(uri);
-            MongoClient client = new MongoClient(url);
-            MongoServer server = client.GetServer();
-            MongoDatabase db = server.GetDatabase("sampledb");
+
 
             var collectionCustomer = db.GetCollection<Customer>("customer");
 
@@ -64,6 +72,11 @@ namespace MongoDbSample.Controllers
 
             //remove
             collectionCustomer.Remove(query);
+        }
+
+        public ActionResult Adddata(string datatoinsert)
+        {
+            return Json();
         }
     }
 }

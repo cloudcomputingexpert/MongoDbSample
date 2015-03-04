@@ -9,7 +9,9 @@
 
 <article>
     <p>
-        Use this area to provide additional information.
+        <a id="adddata" href="#">Add data</a>
+        <div id="Insertdata" style="display: none;">
+        <input type="text" value="json" name="Insertdata" id="Insertdata"/></div>
     </p>
 
     <p>
@@ -32,3 +34,30 @@
         <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
     </ul>
 </aside>
+
+<script>
+
+    $("#adddata").click(function() {
+        var datatoinsert = $("#Insertdata").val();
+        $.ajax({
+            type: "GET",
+            url: BASE_URL + "/Home/Adddata",
+            async: false,
+            data: { datatoinsert: datatoinsert },
+            success: function (data) {
+                var i = 0;
+                if (data.length > 0) {
+
+                    var optionValue = "";
+                    optionValue += "<option value=''>Select the lottery you would like to test</option>";
+                    for (i = 0; i < data.length; i++) {
+                        optionValue += "<option value='" + data[i].Lottery_Id + "'>" + "Lottery_" + data[i].Lottery_Id + "</option>";
+
+                    }
+                    $("#lottery").html(optionValue);
+                    onblur_event("div_school_lottery", null);
+                }
+            }
+        });
+    });
+</script>
