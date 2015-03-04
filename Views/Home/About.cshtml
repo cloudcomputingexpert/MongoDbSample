@@ -63,11 +63,11 @@
             data: $('#DataforEmployee').serialize(),
             success: function(data) {
                 if (data == "Success") {
-                    alert("success");
+                    alert("Inserted successfully");
                     $("#Insertdata").css("display", "none");
                 } else {
                     {
-                        alert("error");
+                        alert("error in insertion");
                     }
                 }
             }
@@ -86,7 +86,7 @@
             data: $('#UpdateDataforEmployee').serialize(),
             success: function(data) {
                 if (data == "Success") {
-                    alert("success");
+                    alert("Update successfully");
                     var dataSet = [];
                     $.ajax({
                         url: '@sBaseurl' + "/Home/GetEmployeeData",
@@ -105,7 +105,7 @@
                     $("#Insertdata").css("display", "none");
                 } else {
                     {
-                        alert("error");
+                        alert("error in update");
                     }
                 }
             }
@@ -148,5 +148,37 @@
 
              }
          });
+    }
+
+    function deleterecord(id) {
+        $.ajax({
+            url: '@sBaseurl' + "/Home/GetDeleteRecord",
+            type: 'GET',
+            cache: false,
+            data: { Id: id },
+            success: function (data) {
+                if (data == "Success") {
+                    alert("Deleted Successfully");
+                    var dataSet = [];
+                    $.ajax({
+                        url: '@sBaseurl' + "/Home/GetEmployeeData",
+                        type: 'GET',
+                        cache: false,
+                        data: {},
+                        success: function (data) {
+
+                            $('#Displaydata').html(data);
+
+
+                            $("#Displaydata").css("display", "block");
+
+                        }
+                    });
+                } else {
+                    alert("Error in deletion");
+                }
+
+            }
+        });
     }
 </script>
