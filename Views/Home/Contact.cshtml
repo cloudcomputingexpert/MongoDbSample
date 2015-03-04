@@ -1,50 +1,40 @@
 ﻿@{
-    ViewBag.Title = "Contact";
+    ViewBag.Title = "Home Page";
+    Layout = null;
 }
+@model IEnumerable<MongoDbSample.Models.Student>
 
-<hgroup class="title">
-    <h1>@ViewBag.Title.</h1>
-    <h2>@ViewBag.Message</h2>
-</hgroup>
+@*var htmlData = "<span style='display: inline-flex;'><a href='@sBaseurl' target='_blank'><input type='button' class='btn tiny btn-success' style='border-radius: 3px;' value='Edit' /></a>&nbsp;&nbsp;<a href='@sBaseurl/Home/DeleteStudentRecord?uid=" + data[i].Uid + "'><input type='button' class='btn tiny btn-success' style='border-radius: 3px;' value='Delete' /></a></span>";*@
 
-<section class="contact">
-    <header>
-        <h3>Phone</h3>
-    </header>
-    <p>
-        <span class="label">Main:</span>
-        <span>425.555.0100</span>
-    </p>
-    <p>
-        <span class="label">After Hours:</span>
-        <span>425.555.0199</span>
-    </p>
-</section>
+<div>
+    <h3>This a sample MongoDB program.</h3>
+</div>
+<div>
+    <div id="screen_section">
+        <table border="1" style="width: 100%;border-spacing: inherit">
+            <tr>
+                <td>ID</td>
+                <td>Name</td>
+                <td>Grade</td>
+                <td>Address</td>
+                <td>Phone</td>
+                <td>City</td>
+            </tr>
+            @foreach (var r in Model)
+            {
+                <tr>
+                    <td>@r.Id</td>
+                    <td>@r.Name</td>
+                    <td>@r.Grade</td>
+                    <td>@r.Address</td>
+                    <td>@r.Phone</td>
+                    <td>@r.City</td>
+                </tr>
 
-<section class="contact">
-    <header>
-        <h3>Email</h3>
-    </header>
-    <p>
-        <span class="label">Support:</span>
-        <span><a href="mailto:Support@example.com">Support@example.com</a></span>
-    </p>
-    <p>
-        <span class="label">Marketing:</span>
-        <span><a href="mailto:Marketing@example.com">Marketing@example.com</a></span>
-    </p>
-    <p>
-        <span class="label">General:</span>
-        <span><a href="mailto:General@example.com">General@example.com</a></span>
-    </p>
-</section>
+            }
+        </table>
+    </div>
+</div>
 
-<section class="contact">
-    <header>
-        <h3>Address</h3>
-    </header>
-    <p>
-        One Microsoft Way<br />
-        Redmond, WA 98052-6399
-    </p>
-</section>
+
+
