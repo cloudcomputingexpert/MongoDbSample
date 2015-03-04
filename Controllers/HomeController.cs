@@ -27,9 +27,9 @@ namespace MongoDbSample.Controllers
 
         public ActionResult Index()
         {
-            MongoDbOpeartions();
-            InsertBatch();
-            InsertUsingBulk();
+            //MongoDbOpeartions();
+            //InsertBatch();
+            //InsertUsingBulk();
             return View();
         }
 
@@ -88,6 +88,11 @@ namespace MongoDbSample.Controllers
                 string lastName = string.Empty;
                 string contactNo = string.Empty;
                 string address = string.Empty;
+                string Id = string.Empty;
+                if (!string.IsNullOrEmpty(form.GetValue("hiddenid").AttemptedValue))
+                {
+                    Id = form.GetValue("hiddenid").AttemptedValue;
+                }
                 if (!string.IsNullOrEmpty(form.GetValue("FirstName").AttemptedValue))
                 {
                     firstName = form.GetValue("FirstName").AttemptedValue;
@@ -104,10 +109,22 @@ namespace MongoDbSample.Controllers
                 {
                     address = form.GetValue("Address").AttemptedValue;
                 }
+                if (!string.IsNullOrEmpty((Id)))
+                {
+                    var query = Query<Employee>.EQ(e => e.id , Id);
+                    Employee emp = collectionmployee.FindOne(query);
+                    var update = Update<Employee>.Set(e => e.FirstName, firstName).Set(e => e.LastName, lastName).Set(e => e.Address, address).Set(e => e.ContactNo, contactNo);
+                    collectionmployee.Update(query, update);
+                    result = "Success";
+                }
+                else
+                {
+                    Employee emp1 = new Employee { id = Guid.NewGuid().ToString(), FirstName = firstName, LastName = lastName, ContactNo = contactNo, Address = address };
+                    collectionmployee.Insert(emp1);
+                    result = "Success";
+                }
+               
                 
-                Employee emp1 = new Employee {id=Guid.NewGuid().ToString(), FirstName = firstName, LastName = lastName, ContactNo = contactNo,Address = address };
-                collectionmployee.Insert(emp1);
-                result = "Success";
             }
             catch (Exception)
             {
@@ -120,21 +137,40 @@ namespace MongoDbSample.Controllers
 
         public ActionResult GetEmployeeData()
         {
+            string sectiondata;
             List<Employee> objEmployees = new List<Employee>();
             try
             {
                 var collectionmployee = Db.GetCollection<Employee>("employee");
                 var employee = collectionmployee.FindAll();
                 objEmployees.AddRange(employee);
+                sectiondata = objEmployees.Aggregate("<table border='1' style='width: 100%;border-spacing: 'inherit' id='section_table'><thead><tr><th width='150'>First Name</th><th width='150'>Last Name</th><th width='150'>Contact</th><th width='150'>Address</th></tr></thead><tbody id='section_data'>", (current, r) => current + ("<tr><td>" + r.FirstName + "</td> <td>" + r.LastName + "</td><td> " + r.ContactNo + " </td><td>" + r.Address + "</td><td><a style='cursor:pointer;' onclick=editrecord('" + r.id + "'); >edit</a></td></tr>"));
+                sectiondata += " </tbody></table>";
             }
             catch (Exception)
             {
 
                 throw new Exception();
             }
-            return Json(objEmployees, JsonRequestBehavior.AllowGet);
+            return Json(sectiondata, JsonRequestBehavior.AllowGet);
         }
-
+        [HttpGet]
+        public ActionResult GetEditRecord(string Id)
+        {
+            string EditData;
+            try
+            {
+                var collectionmployee = Db.GetCollection<Employee>("employee");
+                var query = Query<Employee>.EQ(e => e.id , Id);
+                Employee emp = collectionmployee.FindOne(query);
+                EditData = "<form id='UpdateDataforEmployee' action='post'><div> <label>First Name</label><input type='text' placeholder='Enter FirstName' name='FirstName' id='FirstName' value='" + emp.FirstName + "'/></div><div> <label>Last Name</label><input type='text' placeholder='Enter LastName' name='LastName' id='LastName' value='" + emp.LastName + "'/></div><div> <label>Contact No.</label><input type='text' placeholder='Enter ContactNo' name='ContactNo' id='ContactNo' value='" + emp.ContactNo + "'/></div><div> <label>Address</label><input type='text' placeholder='Enter Address' name='Address' value='" + emp.Address + "' id='Address'/></div><input type='hidden' value='" + emp.id + "' name='hiddenid'><input type='button' name='Update' value='Update' id='Updaterow' onclick='Updatedata();'/></form>";
+            }
+            catch (Exception)
+            {
+                throw new Exception();
+            }
+            return Json(EditData, JsonRequestBehavior.AllowGet);
+        }
         private IEnumerable<Student> StudentGrid()
         {
             try
@@ -187,9 +223,8 @@ namespace MongoDbSample.Controllers
             }
             catch (Exception)
             {
-                {
-                }
-                throw;
+               
+                throw new Exception();
             }
         }
 

@@ -2,7 +2,7 @@
     ViewBag.Title = "About";
     string sBaseurl = System.Configuration.ConfigurationManager.AppSettings["BaseUrl"];
 }
-
+ <script src='@Url.Content(sBaseurl + "/Scripts/jquery.dataTables.min.js")' type="text/javascript"></script>
 <hgroup class="title">
     <h1>@ViewBag.Title.</h1>
     <h2>@ViewBag.Message</h2>
@@ -25,6 +25,7 @@
                    <div> <label>Address</label>
                        <input type="text" placeholder="Enter Address" name="Address" id="Address"/>
                    </div>
+                   <input type="hidden" value="" name="hiddenid">
                    <input type="button" name="Insert" value="Insert" id='Insertrow'/>
          </form>
 
@@ -37,32 +38,23 @@
             </div>
     </p>
 
-    <p>
-        Use this area to provide additional information.
-    </p>
+    
 </article>
 
-<aside>
-    <h3>Aside Title</h3>
-    <p>
-        Use this area to provide additional information.
-    </p>
-    <ul>
-        <li>@Html.ActionLink("Home", "Index", "Home")</li>
-        <li>@Html.ActionLink("About", "About", "Home")</li>
-        <li>@Html.ActionLink("Contact", "Contact", "Home")</li>
-    </ul>
-</aside>
+
 
 <script>
 
     $("#adddata").click(function() {
         // var datatoinsert = $("#Insertdata").val();
+       // $("#Insertdata").html("");
         $("#Insertdata").css("display", "block");
+        $("#DataforEmployee").trigger("reset");
+       // $("#DataforEmployee").reset();
     });
-   
+
     $("#Insertrow").click(function() {
-        
+
 
         $.ajax({
             type: "POST",
@@ -72,6 +64,7 @@
             success: function(data) {
                 if (data == "Success") {
                     alert("success");
+                    $("#Insertdata").css("display", "none");
                 } else {
                     {
                         alert("error");
@@ -80,9 +73,48 @@
             }
         });
     });
+
+    function Updatedata() {
+
+
+        //  $("#Insertdata").css("display", "block");
+
+        $.ajax({
+            type: "POST",
+            url: '@sBaseurl' + "/Home/Adddata",
+            async: false,
+            data: $('#UpdateDataforEmployee').serialize(),
+            success: function(data) {
+                if (data == "Success") {
+                    alert("success");
+                    var dataSet = [];
+                    $.ajax({
+                        url: '@sBaseurl' + "/Home/GetEmployeeData",
+            type: 'GET',
+            cache: false,
+            data: {},
+            success: function (data) {
+
+                $('#Displaydata').html(data);
+
+
+                $("#Displaydata").css("display", "block");
+
+            }
+                    });
+                    $("#Insertdata").css("display", "none");
+                } else {
+                    {
+                        alert("error");
+                    }
+                }
+            }
+        });
+    }
+
     $("#viewdata").click(function() {
         // var datatoinsert = $("#Insertdata").val();
-        
+
         var dataSet = [];
         $.ajax({
             url: '@sBaseurl' + "/Home/GetEmployeeData",
@@ -90,31 +122,31 @@
             cache: false,
             data: {},
             success: function(data) {
-                for (var i = 0; i < data.length; i++) {
+                
+                $('#Displaydata').html(data);
 
-                    dataSet.push([data[i].FirstName, data[i].LastName, data[i].ContactNo, data[i].Address]);
-
-                }
-                $('#Displaydata').html('<table style="overflow-x: scroll;display: inline-block;" cellpadding="0" cellspacing="0" border="0" class="display" id="screen_display_table"></table>');
-
-                $('#screen_display_table').dataTable({
-                    "data": dataSet,
-                    "columns": [
-                        { "title": "First Name" },
-                        { "title": "Last Name" },
-                        { "title": "Contact" },
-                        { "title": "Address" }
-                    ],
-                    "aoColumnDefs": [
-                        {
-                            'bSortable': false,
-                            'aTargets': [0]
-                        }]
-
-                });
+               
                 $("#Displaydata").css("display", "block");
 
             }
         });
     });
+
+    function editrecord(id) {
+        $.ajax({
+            url: '@sBaseurl' + "/Home/GetEditRecord",
+             type: 'GET',
+             cache: false,
+             data: {Id: id},
+             success: function (data) {
+
+                 $('#Insertdata').html("");
+                 $('#Insertdata').html(data);
+
+
+                 $("#Insertdata").css("display", "block");
+
+             }
+         });
+    }
 </script>
