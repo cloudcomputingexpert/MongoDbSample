@@ -1,4 +1,6 @@
-﻿using System.Web.Configuration;
+﻿using System;
+using System.Collections.Generic;
+using System.Web.Configuration;
 using System.Web.Mvc;
 using MongoDbSample.Models;
 using MongoDB.Driver;
@@ -73,10 +75,65 @@ namespace MongoDbSample.Controllers
             //remove
             collectionCustomer.Remove(query);
         }
-
-        public ActionResult Adddata(string datatoinsert)
+        //insert data in employee..
+        [HttpPost]
+        public ActionResult Adddata(FormCollection form)
         {
-            return Json();
+            string result = string.Empty;
+            try
+            {
+                var collectionmployee = db.GetCollection<Employee>("employee");
+                string FirstName = string.Empty;
+                string LastName = string.Empty;
+                string ContactNo = string.Empty;
+                string Address = string.Empty;
+                if (!string.IsNullOrEmpty(form.GetValue("FirstName").AttemptedValue))
+                {
+                    FirstName = form.GetValue("FirstName").AttemptedValue;
+                }
+                if (!string.IsNullOrEmpty(form.GetValue("LastName").AttemptedValue))
+                {
+                    LastName = form.GetValue("LastName").AttemptedValue;
+                }
+                if (!string.IsNullOrEmpty(form.GetValue("ContactNo").AttemptedValue))
+                {
+                    ContactNo = form.GetValue("ContactNo").AttemptedValue;
+                }
+                if (!string.IsNullOrEmpty(form.GetValue("Address").AttemptedValue))
+                {
+                    Address = form.GetValue("Address").AttemptedValue;
+                }
+                
+                Employee emp1 = new Employee {id=Guid.NewGuid().ToString(), FirstName = FirstName, LastName = LastName, ContactNo = ContactNo,Address = Address };
+                collectionmployee.Insert(emp1);
+                result = "Success";
+            }
+            catch (Exception)
+            {
+
+                throw new Exception();
+            }
+            return Json(result,JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetEmployeeData()
+        {
+            List<Employee> objEmployees = new List<Employee>();
+             try
+            {
+                var collectionmployee = db.GetCollection<Employee>("employee");
+                var employee = collectionmployee.FindAll();
+                foreach (var r in employee)
+                {
+                    objEmployees.Add(r);
+                }
+            }
+             catch (Exception)
+             {
+
+                 throw new Exception();
+             }
+             return Json(objEmployees, JsonRequestBehavior.AllowGet);
         }
     }
 }

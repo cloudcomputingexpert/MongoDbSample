@@ -1,5 +1,6 @@
 ﻿@{
     ViewBag.Title = "About";
+    string sBaseurl = System.Configuration.ConfigurationManager.AppSettings["BaseUrl"];
 }
 
 <hgroup class="title">
@@ -11,11 +12,29 @@
     <p>
         <a id="adddata" href="#">Add data</a>
         <div id="Insertdata" style="display: none;">
-        <input type="text" value="json" name="Insertdata" id="Insertdata"/></div>
+               <form id="DataforEmployee" action="post">
+            <div> <label>First Name</label>
+                <input type="text" placeholder="Enter FirstName" name="FirstName" id="FirstName"/>
+            </div>
+            <div> <label>Last Name</label>
+                <input type="text" placeholder="Enter LastName" name="LastName" id="LastName"/>
+            </div>
+                   <div> <label>Contact No.</label>
+                       <input type="text" placeholder="Enter ContactNo" name="ContactNo" id="ContactNo"/>
+                   </div>
+                   <div> <label>Address</label>
+                       <input type="text" placeholder="Enter Address" name="Address" id="Address"/>
+                   </div>
+                   <input type="button" name="Insert" value="Insert" id='Insertrow'/>
+         </form>
+
+        </div>
     </p>
 
     <p>
-        Use this area to provide additional information.
+        <a id="viewdata" href="#">View data</a>
+        <div id="Displaydata" style="display: none;">
+            </div>
     </p>
 
     <p>
@@ -38,25 +57,63 @@
 <script>
 
     $("#adddata").click(function() {
-        var datatoinsert = $("#Insertdata").val();
+        // var datatoinsert = $("#Insertdata").val();
+        $("#Insertdata").css("display", "block");
+    });
+   
+    $("#Insertrow").click(function() {
+        
+
         $.ajax({
-            type: "GET",
-            url: BASE_URL + "/Home/Adddata",
+            type: "POST",
+            url: '@sBaseurl' + "/Home/Adddata",
             async: false,
-            data: { datatoinsert: datatoinsert },
-            success: function (data) {
-                var i = 0;
-                if (data.length > 0) {
-
-                    var optionValue = "";
-                    optionValue += "<option value=''>Select the lottery you would like to test</option>";
-                    for (i = 0; i < data.length; i++) {
-                        optionValue += "<option value='" + data[i].Lottery_Id + "'>" + "Lottery_" + data[i].Lottery_Id + "</option>";
-
+            data: $('#DataforEmployee').serialize(),
+            success: function(data) {
+                if (data == "Success") {
+                    alert("success");
+                } else {
+                    {
+                        alert("error");
                     }
-                    $("#lottery").html(optionValue);
-                    onblur_event("div_school_lottery", null);
                 }
+            }
+        });
+    });
+    $("#viewdata").click(function() {
+        // var datatoinsert = $("#Insertdata").val();
+        
+        var dataSet = [];
+        $.ajax({
+            url: '@sBaseurl' + "/Home/GetEmployeeData",
+            type: 'GET',
+            cache: false,
+            data: {},
+            success: function(data) {
+                for (var i = 0; i < data.length; i++) {
+
+                    dataSet.push([data[i].FirstName, data[i].LastName, data[i].ContactNo, data[i].Address]);
+
+                }
+                $('#Displaydata').html('<table style="overflow-x: scroll;display: inline-block;" cellpadding="0" cellspacing="0" border="0" class="display" id="screen_display_table"></table>');
+
+                $('#screen_display_table').dataTable({
+                    "data": dataSet,
+                    "columns": [
+                        { "title": "First Name" },
+                        { "title": "Last Name" },
+                        { "title": "Contact" },
+                        { "title": "Address" }
+                    ],
+                    "aoColumnDefs": [
+                        {
+                            'bSortable': false,
+                            'aTargets': [0]
+                        }]
+
+                });
+                $("#Displaydata").css("display", "block");
+
             }
         });
     });
