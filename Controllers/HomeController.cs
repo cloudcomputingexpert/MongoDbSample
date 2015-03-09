@@ -116,5 +116,45 @@ namespace MongoDbSample.Controllers
             collectionCustomer.InsertBatch(seedData);
             //collectionCustomer.InitializeOrderedBulkOperation()
         }
+
+        public void InsertUsingBulk()
+        {
+            var collectionCustomer = Db.GetCollection("customer");
+            BsonDocument subBson1 = new BsonDocument
+            {
+                {"model", "14Q3"},
+                {"manufacturer", "XYZ Company"}
+            };
+
+            BsonDocument subBson2 = new BsonDocument
+            {
+                {"size", "S"},
+                {"qty", "25"}
+            };
+
+            BsonDocument subBson3 = new BsonDocument
+            {
+                {"size", "M"},
+                {"qty", "50"}
+            };
+
+            var documents = new BsonArray { subBson2, subBson3 };
+
+            BsonDocument bson = new BsonDocument
+            {
+                {"item", "ABC1"},
+                {"details", subBson1},
+                {"stock", documents},
+                {"category", "clothing"}
+            };
+
+            BulkWriteOperation bulkWrite = collectionCustomer.InitializeOrderedBulkOperation();
+            bulkWrite.Insert(bson);
+            bulkWrite.Insert(subBson1);
+            bulkWrite.Insert(subBson2);
+            bulkWrite.Insert(subBson3);
+            bulkWrite.Execute();
+
+        }
     }
 }
