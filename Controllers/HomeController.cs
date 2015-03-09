@@ -46,16 +46,12 @@ namespace MongoDbSample.Controllers
         static void MongoDbOpeartions()
         {
             string uri = WebConfigurationManager.ConnectionStrings["MongoDbUri"].ConnectionString;
-            //const string uri = "mongodb://admin:admin@ds031277.mongolab.com:31277/sampledb";
             MongoUrl url = new MongoUrl(uri);
             MongoClient client = new MongoClient(url);
             MongoServer server = client.GetServer();
             MongoDatabase db = server.GetDatabase("sampledb");
 
             var collectionCustomer = db.GetCollection<Customer>("customer");
-
-            //BsonDocument[] seedData = CreateSeedData();
-            //customer.InsertBatch(seedData);
 
             //insert
             Customer customer1 = new Customer { Name = "Apurva Jain", Address = "Udaipur", Country = "India", Phone = "999999999" };
