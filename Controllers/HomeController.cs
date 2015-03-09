@@ -27,11 +27,11 @@ namespace MongoDbSample.Controllers
 
         public ActionResult Index()
         {
-            MongoDbOpeartions();
-            InsertBatch();
-            InsertUsingBulk();
+            //MongoDbOpeartions();
+            //InsertBatch();
+            //InsertUsingBulk();
 
-            FindQuery();
+            //FindQuery();
 
             return View();
         }
@@ -198,7 +198,29 @@ namespace MongoDbSample.Controllers
             return Json(result, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult GetSortedData(string Sortby)
+        {
+            string sectiondata;
+            List<Employee> objEmployees = new List<Employee>();
+            try
+            {
+                var collectionmployee = Db.GetCollection<Employee>("employee");
+                if (!string.IsNullOrEmpty(Sortby) && Sortby.ToUpper().Equals("NAME"))
+                {
+                    var employee = collectionmployee.FindAll().OrderBy(e => e.FirstName);
+                    objEmployees.AddRange(employee);
+                }
+               
+                sectiondata = objEmployees.Aggregate("<table border='1' style='width: 100%;border-spacing: 'inherit' id='section_table'><thead><tr><th width='150'>First Name</th><th width='150'>Last Name</th><th width='150'>Contact</th><th width='150'>Address</th></tr></thead><tbody id='section_data'>", (current, r) => current + ("<tr><td>" + r.FirstName + "</td> <td>" + r.LastName + "</td><td> " + r.ContactNo + " </td><td>" + r.Address + "</td><td><a style='cursor:pointer;' onclick=editrecord('" + r.id + "'); >edit</a></td><td><a style='cursor:pointer;' onclick=deleterecord('" + r.id + "'); >delete</a></td></tr>"));
+                sectiondata += " </tbody></table>";
+            }
+            catch (Exception)
+            {
 
+                throw new Exception();
+            }
+            return Json(sectiondata, JsonRequestBehavior.AllowGet);
+        }
         public ActionResult StudentGrid()
 
         {

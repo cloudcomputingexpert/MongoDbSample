@@ -1,5 +1,5 @@
 ﻿@{
-    ViewBag.Title = "About";
+    ViewBag.Title = "Crud Operations";
     string sBaseurl = System.Configuration.ConfigurationManager.AppSettings["BaseUrl"];
 }
  <script src='@Url.Content(sBaseurl + "/Scripts/jquery.dataTables.min.js")' type="text/javascript"></script>
@@ -35,7 +35,10 @@
     <p>
         <a id="viewdata" href="#">View data</a>
         <div id="Displaydata" style="display: none;">
-            </div>
+
+        </div>
+        <div id="sortbyname" style="display: none;">
+         <input type="button" id="SortByName" name="SortByName" value="Sort By First Name" onclick="sort('name');"/></div>
     </p>
 
     
@@ -99,6 +102,7 @@
 
 
                 $("#Displaydata").css("display", "block");
+                $("#sortbyname").css("display", "block");
 
             }
                     });
@@ -114,7 +118,7 @@
 
     $("#viewdata").click(function() {
         // var datatoinsert = $("#Insertdata").val();
-
+        $("#Insertdata").css("display", "none");
         var dataSet = [];
         $.ajax({
             url: '@sBaseurl' + "/Home/GetEmployeeData",
@@ -127,7 +131,7 @@
 
                
                 $("#Displaydata").css("display", "block");
-
+                $("#sortbyname").css("display", "block");
             }
         });
     });
@@ -171,13 +175,32 @@
 
 
                             $("#Displaydata").css("display", "block");
-
+                            $("#sortbyname").css("display", "block");
                         }
                     });
                 } else {
                     alert("Error in deletion");
                 }
 
+            }
+        });
+    }
+
+    function sort(name) {
+        $("#Insertdata").css("display", "none");
+        var dataSet = [];
+        $.ajax({
+            url: '@sBaseurl' + "/Home/GetSortedData",
+            type: 'GET',
+            cache: false,
+            data: {Sortby: name},
+            success: function (data) {
+
+                $('#Displaydata').html(data);
+
+
+                $("#Displaydata").css("display", "block");
+                $("#sortbyname").css("display", "block");
             }
         });
     }
