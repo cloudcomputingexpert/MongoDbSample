@@ -1,6 +1,7 @@
 ﻿using System.Web.Configuration;
 using System.Web.Mvc;
 using MongoDbSample.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Builders;
 
@@ -8,10 +9,24 @@ namespace MongoDbSample.Controllers
 {
     public class HomeController : Controller
     {
+
+        public MongoDatabase Db;
+        readonly string _uri = WebConfigurationManager.ConnectionStrings["MongoDbUri"].ConnectionString;
+        
+        public HomeController()
+        {
+            //const string uri = "mongodb://admin:admin@ds031277.mongolab.com:31277/sampledb";
+            MongoUrl url = new MongoUrl(_uri);
+            MongoClient client = new MongoClient(url);
+            MongoServer server = client.GetServer();
+            Db = server.GetDatabase("sampledb");
+        }
+
         public ActionResult Index()
         {
             ViewBag.Message = "Modify this template to jump-start your ASP.NET MVC application.";
-            MongoDbOpeartions();
+            //MongoDbOpeartions();
+            InsertBatch();
             return View();
         }
 
@@ -64,6 +79,42 @@ namespace MongoDbSample.Controllers
 
             //remove
             collectionCustomer.Remove(query);
+        }
+
+        public void InsertBatch()
+        {
+            var collectionCustomer = Db.GetCollection("customer");
+            BsonDocument subBson1 = new BsonDocument
+            {
+                {"model", "14Q3"},
+                {"manufacturer", "XYZ Company"}
+            };
+
+            BsonDocument subBson2 = new BsonDocument
+            {
+                {"size", "S"},
+                {"qty", "25"}
+            };
+
+            BsonDocument subBson3 = new BsonDocument
+            {
+                {"size", "M"},
+                {"qty", "50"}
+            };
+
+            var documents = new BsonArray { subBson2, subBson3 };
+
+            BsonDocument bson = new BsonDocument
+            {
+                {"item", "ABC1"},
+                {"details", subBson1},
+                {"stock", documents},
+                {"category", "clothing"}
+            };
+
+            BsonDocument[] seedData = { bson, subBson1, subBson2, subBson3 };
+            collectionCustomer.InsertBatch(seedData);
+            //collectionCustomer.InitializeOrderedBulkOperation()
         }
     }
 }
