@@ -1,4 +1,5 @@
-﻿using System.Web.Configuration;
+﻿using System;
+using System.Web.Configuration;
 using System.Web.Mvc;
 using MongoDbSample.Models;
 using MongoDB.Bson;
@@ -155,6 +156,43 @@ namespace MongoDbSample.Controllers
             bulkWrite.Insert(subBson3);
             bulkWrite.Execute();
 
+        }
+
+        public void FindQuery()
+        {
+            var collectionCustomer = Db.GetCollection("customer");
+
+            //Greater than
+            var query = Query.GT("quantity", 30);
+            MongoCursor<BsonDocument> cursorGt = collectionCustomer.Find(query);
+            foreach (var cur in cursorGt)
+            {
+                Console.WriteLine(cur);
+            }
+
+            //Or operator
+            query = Query.Or(Query.EQ("quantity", 50), Query.EQ("quantity", 40));
+            MongoCursor<BsonDocument> cursorOr = collectionCustomer.Find(query);
+            foreach (var cur in cursorOr)
+            {
+                Console.WriteLine(cur);
+            }
+
+            //And operator
+            query = Query.And(Query.EQ("quantity", 25), Query.EQ("size", "S"));
+            MongoCursor<BsonDocument> cursorAnd = collectionCustomer.Find(query);
+            foreach (var cur in cursorAnd)
+            {
+                Console.WriteLine(cur);
+            }
+
+            //And with Or operator
+            query = Query.And(Query.EQ("quantity", 25), Query.Or(Query.EQ("size", "S"), Query.EQ("size", "N")));
+            MongoCursor<BsonDocument> cursorAndOr = collectionCustomer.Find(query);
+            foreach (var cur in cursorAndOr)
+            {
+                Console.WriteLine(cur);
+            }
         }
     }
 }
