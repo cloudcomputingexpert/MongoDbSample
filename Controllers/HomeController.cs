@@ -190,8 +190,8 @@ namespace MongoDbSample.Controllers
             }
             catch (Exception)
             {
-                throw new Exception();
                 result = "Fail";
+                throw new Exception();
             }
             return Json(result, JsonRequestBehavior.AllowGet);
         }
@@ -408,6 +408,7 @@ namespace MongoDbSample.Controllers
             {
                 Console.WriteLine(cur);
             }
+            
         }
     }
 }
