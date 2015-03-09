@@ -47,15 +47,13 @@ namespace MongoDbSample.Controllers
         {
             var collection = Db.GetCollection<Student>("student");
             MongoCursor<Student> result = collection.FindAllAs<Student>();
+            Findstudent();
             return View(result);
         }
 
         public void MongoDbOpeartions()
         {
-            var collectionCustomer = Db.GetCollection<Customer>("customer");
-
-            //BsonDocument[] seedData = CreateSeedData();
-            //customer.InsertBatch(seedData);
+            var collectionCustomer = Db.GetCollection<Customer>("customer1");
 
             //insert
             Customer customer1 = new Customer { Name = "Apurva Jain", Address = "Udaipur", Country = "India", Phone = "999999999" };
@@ -200,7 +198,6 @@ namespace MongoDbSample.Controllers
 
 
         public ActionResult StudentGrid()
-
         {
             try
             {
@@ -400,6 +397,17 @@ namespace MongoDbSample.Controllers
             var query = Query<Student>.EQ(e => e.Id, id);
             studentobj.Remove(query);
             return RedirectToAction("Grid","Home");
+        }
+
+        public void Findstudent()
+        {
+            var studentobj = Db.GetCollection<Student>("student");
+            var query = Query.Or(Query.EQ(studentobj.Name, "John"), Query.EQ(studentobj.Name, "abc"));
+            MongoCursor<Student> cursorOr = studentobj.Find(query);
+            foreach (var cur in cursorOr)
+            {
+                Console.WriteLine(cur);
+            }
         }
     }
 }
